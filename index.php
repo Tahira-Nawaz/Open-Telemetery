@@ -1,9 +1,9 @@
 <?php
-// Enable PHP errors
+// Enable PHP errors for debugging
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Confirm PHP execution
+// Confirm PHP reached index
 echo "PHP reached index.php<br>";
 
 // Load Composer autoloader

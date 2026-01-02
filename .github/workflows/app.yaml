@@ -30,7 +30,7 @@ jobs:
           if ! command -v composer &> /dev/null
           then
             curl -sS https://getcomposer.org/installer | php
-            mv composer.phar /usr/local/bin/composer
+            sudo mv composer.phar /usr/local/bin/composer
           fi
 
       - name: Check if composer.json exists
