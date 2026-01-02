@@ -4,8 +4,7 @@ require __DIR__ . '/otel.php';
 $span = $tracer->spanBuilder('index-request')->startSpan();
 
 try {
-    // your existing PHP code
-    echo "Hello from PHP app";
+    // your PHP logic
 } finally {
     $span->end();
 }
