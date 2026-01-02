@@ -7,24 +7,13 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      app_name:
-        description: 'Azure Web App name'
-        required: true
-        default: 'tahira-test-app'
-      resource_group:
-        description: 'Azure Resource Group name'
-        required: true
-        default: 'webapp-rg'
-      location:
-        description: 'Azure region'
-        required: true
-        default: 'westus2'
-      plan_name:
-        description: 'Azure App Service Plan name'
-        required: true
-        default: 'webapp-b1-plan'
+
+env:
+  APP_NAME: tahira-test-app
+  RESOURCE_GROUP: webapp-rg
+  LOCATION: westus2
+  PLAN_NAME: webapp-b1-plan
+  PHP_VERSION: 8.2
 
 jobs:
   build:
@@ -36,7 +25,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: ${{ env.PHP_VERSION }}
 
       - name: Check if composer.json exists
         id: check_files
@@ -49,7 +38,7 @@ jobs:
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip -r release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -62,9 +51,8 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #Required for GitHub OIDC, optional here if using SP
+      id-token: write # Required for GitHub OIDC, optional if using SP
 
     steps:
       - name: Download artifact from build job
@@ -82,36 +70,35 @@ jobs:
 
       - name: Create Resource Group if not exists
         run: |
-          az group show --name ${{ github.event.inputs.resource_group }} || \
-          az group create --name ${{ github.event.inputs.resource_group }} --location ${{ github.event.inputs.location }}
+          az group show --name ${{ env.RESOURCE_GROUP }} || \
+          az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
       - name: Create App Service Plan if not exists (B1)
         run: |
           az appservice plan show \
-            --name ${{ github.event.inputs.plan_name }} \
-            --resource-group ${{ github.event.inputs.resource_group }} || \
+            --name ${{ env.PLAN_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} || \
           az appservice plan create \
-            --name ${{ github.event.inputs.plan_name }} \
-            --resource-group ${{ github.event.inputs.resource_group }} \
-            --location ${{ github.event.inputs.location }} \
+            --name ${{ env.PLAN_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }} \
             --sku B1 \
             --is-linux
 
       - name: Create Web App if not exists
         run: |
           az webapp show \
-            --name ${{ github.event.inputs.app_name }} \
-            --resource-group ${{ github.event.inputs.resource_group }} || \
+            --name ${{ env.APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} || \
           az webapp create \
-            --name ${{ github.event.inputs.app_name }} \
-            --resource-group ${{ github.event.inputs.resource_group }} \
-            --plan ${{ github.event.inputs.plan_name }} \
-            --runtime "PHP|8.2"
+            --name ${{ env.APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --plan ${{ env.PLAN_NAME }} \
+            --runtime "PHP|${{ env.PHP_VERSION }}"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
-          app-name: ${{ github.event.inputs.app_name }}
+          app-name: ${{ env.APP_NAME }}
           slot-name: 'Production'
           package: .

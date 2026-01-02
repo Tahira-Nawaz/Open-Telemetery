@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 require __DIR__ . '/otel.php';
 
 $span = $tracer->spanBuilder('index-request')->startSpan();
@@ -8,7 +8,7 @@ try {
 } finally {
     $span->end();
 }
-?>
+?> -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
