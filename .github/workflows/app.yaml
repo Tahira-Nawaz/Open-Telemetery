@@ -1,0 +1,117 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy PHP app to Azure Web App
+
+on:
+  push:
+    branches:
+      - none
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Azure Web App name'
+        required: true
+        default: 'tahira-test-app'
+      resource_group:
+        description: 'Azure Resource Group name'
+        required: true
+        default: 'webapp-rg'
+      location:
+        description: 'Azure region'
+        required: true
+        default: 'westus2'
+      plan_name:
+        description: 'Azure App Service Plan name'
+        required: true
+        default: 'webapp-b1-plan'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Check if composer.json exists
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: 'composer.json'
+
+      - name: Run composer install if composer.json exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -r
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-app
+          path: release.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write #Required for GitHub OIDC, optional here if using SP
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: php-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group if not exists
+        run: |
+          az group show --name ${{ github.event.inputs.resource_group }} || \
+          az group create --name ${{ github.event.inputs.resource_group }} --location ${{ github.event.inputs.location }}
+
+      - name: Create App Service Plan if not exists (B1)
+        run: |
+          az appservice plan show \
+            --name ${{ github.event.inputs.plan_name }} \
+            --resource-group ${{ github.event.inputs.resource_group }} || \
+          az appservice plan create \
+            --name ${{ github.event.inputs.plan_name }} \
+            --resource-group ${{ github.event.inputs.resource_group }} \
+            --location ${{ github.event.inputs.location }} \
+            --sku B1 \
+            --is-linux
+
+      - name: Create Web App if not exists
+        run: |
+          az webapp show \
+            --name ${{ github.event.inputs.app_name }} \
+            --resource-group ${{ github.event.inputs.resource_group }} || \
+          az webapp create \
+            --name ${{ github.event.inputs.app_name }} \
+            --resource-group ${{ github.event.inputs.resource_group }} \
+            --plan ${{ github.event.inputs.plan_name }} \
+            --runtime "PHP|8.2"
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: ${{ github.event.inputs.app_name }}
+          slot-name: 'Production'
+          package: .

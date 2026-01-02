@@ -1,0 +1,4 @@
+mysql -h testapptahira-server.mysql.database.azure.com -P 3306 -u eopjxwasip -p --ssl-ca=/home/tahira/DigiCertGlobalRootCA.crt.pem
+
+
+curl -o ~/DigiCertGlobalRootCA.crt.pem https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem

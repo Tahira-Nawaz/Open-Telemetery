@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-mysql
+  template:
+    metadata:
+      labels:
+        app: my-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpass"  # Root password for MySQL
+        - name: MYSQL_DATABASE
+          value: "testdb"  # The database you want to create
+        - name: MYSQL_USER
+          value: "myuser"  # The username for MySQL
+        - name: MYSQL_PASSWORD
+          value: "mypassword"  # The password for MySQL
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-mysql
+spec:
+  selector:
+    app: my-mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP  # Change to LoadBalancer if you need external access

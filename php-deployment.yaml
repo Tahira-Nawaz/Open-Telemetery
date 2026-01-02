@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-php-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-php-app
+  template:
+    metadata:
+      labels:
+        app: my-php-app
+    spec:
+      containers:
+      - name: my-php-container
+        image: tahiranawaz/my-php-app:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_SERVER
+          value: "my-mysql-service"  # Use the MySQL service name here
+        - name: DB_USERNAME
+          value: "myuser"  # MySQL username
+        - name: DB_PASSWORD
+          value: "mypassword"  # MySQL password
+        - name: DB_DATABASE
+          value: "testdb"  # The database name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-php-service
+spec:
+  selector:
+    app: my-php-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
