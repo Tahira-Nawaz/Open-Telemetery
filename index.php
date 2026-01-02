@@ -13,4 +13,4 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/otel.php';
 
 // Print test message
-echo "Hello, Tahira! This is a test<br>";
+echo "Hello, Tahira! This is a test..<br>";
