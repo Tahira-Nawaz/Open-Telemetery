@@ -7,26 +7,24 @@ use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
-// Configure OTLP exporter to collector VM
-$exporter = new SpanExporter(
-    endpoint: 'http://4.154.175.112:4318/v1/traces' // Your collector VM
-);
+// OTLP exporter using **positional argument**
+$exporter = new SpanExporter('http://4.154.175.112:4318/v1/traces');
 
-// Resource info for service name
+// Resource info
 $resource = ResourceInfo::create(
     new Attributes([
         ResourceAttributes::SERVICE_NAME => 'php-otel-test'
     ])
 );
 
-// TracerProvider setup
+// TracerProvider
 $tracerProvider = new TracerProvider(
     new SimpleSpanProcessor($exporter),
     new AlwaysOnSampler(),
     $resource
 );
 
-// Create a sample span
+// Example span
 $tracer = $tracerProvider->getTracer('test-tracer');
 $span = $tracer->spanBuilder('test-span')->startSpan();
 $span->end();
