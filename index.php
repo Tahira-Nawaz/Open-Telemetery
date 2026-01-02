@@ -1,14 +1,3 @@
-<!-- <?php
-require __DIR__ . '/otel.php';
-
-$span = $tracer->spanBuilder('index-request')->startSpan();
-
-try {
-    // your PHP logic
-} finally {
-    $span->end();
-}
-?> -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -286,4 +275,3 @@ Offering you additional revision if any chnage is require..!
         <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
     </body>
 </html>
-        
