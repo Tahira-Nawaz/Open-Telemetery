@@ -1,16 +1,18 @@
 <?php
-// Enable PHP errors for debugging
+// index.php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Confirm PHP reached index
 echo "PHP reached index.php<br>";
 
-// Load Composer autoloader
-require __DIR__ . '/vendor/autoload.php';
+// 1. Load Autoloader
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+} else {
+    die("Autoloader not found. Run 'composer install' in the project root.");
+}
 
-// Load OTEL setup
+// 2. Load OTEL setup
 require __DIR__ . '/otel.php';
 
-// Print test message
 echo "Hello, Tahira! This is a test..<br>";
