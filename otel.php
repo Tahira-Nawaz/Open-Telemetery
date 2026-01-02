@@ -7,10 +7,8 @@ use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
-// OTLP exporter using **positional argument**
-$exporter = new OpenTelemetry\Exporter\OTLP\SpanExporter(
-    'http://4.154.175.112:4318/v1/traces'
-);
+// OTLP exporter
+$exporter = new SpanExporter('http://4.154.175.112:4318/v1/traces');
 
 // Resource info
 $resource = ResourceInfo::create(
