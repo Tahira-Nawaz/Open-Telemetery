@@ -1,4 +1,17 @@
-<!-- test -->
+<?php
+require __DIR__ . '/otel.php';
+
+// Start a span
+$span = $tracer->spanBuilder('index-request')->startSpan();
+
+try {
+    // Your existing PHP app logic
+    echo "Hello from PHP app with OpenTelemetry!";
+} finally {
+    // End span
+    $span->end();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>

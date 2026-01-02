@@ -1,0 +1,6 @@
+{
+  "require": {
+    "open-telemetry/sdk": "^1.0",
+    "open-telemetry/exporter-otlp": "^1.0"
+  }
+}

@@ -2,27 +2,24 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use OpenTelemetry\SDK\Resource\ResourceInfo;
-use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
-use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
+use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
 
-// Define resource info (service name)
+// Resource info
 $resource = ResourceInfo::create([
     'service.name' => 'php-web-app'
 ]);
 
-// Set the OTLP endpoint, default to your collector IP if env var not set
-$endpoint = getenv('OTEL_EXPORTER_OTLP_ENDPOINT') ?: 'http://4.154.175.112:4318';
-
-// Create OTLP HTTP exporter
+// OTLP Exporter pointing to your collector VM
 $exporter = new OtlpHttpExporter(
-    endpoint: $endpoint
+    endpoint: 'http://4.154.175.112:4318/v1/traces'
 );
 
-// Create span processor
+// Span processor
 $spanProcessor = new SimpleSpanProcessor($exporter);
 
-// Create tracer provider
+// Tracer provider
 $tracerProvider = new TracerProvider(
     $spanProcessor,
     $resource
