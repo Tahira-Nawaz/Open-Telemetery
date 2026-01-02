@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: Production
+      name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #Required for GitHub OIDC, optional here if using SP
