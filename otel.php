@@ -1,29 +1,32 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
-
-use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
-use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
+use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
+use OpenTelemetry\Exporter\OTLP\SpanExporter;
+use OpenTelemetry\SDK\Resource\ResourceInfo;
+use OpenTelemetry\SDK\Common\Attribute\Attributes;
+use OpenTelemetry\SemConv\ResourceAttributes;
 
-// Resource info
-$resource = ResourceInfo::create([
-    'service.name' => 'php-web-app'
-]);
-
-// OTLP Exporter pointing to your collector VM
-$exporter = new OtlpHttpExporter(
+// Exporter pointing to your VM collector
+$exporter = new SpanExporter(
     endpoint: 'http://4.154.175.112:4318/v1/traces'
 );
 
-// Span processor
-$spanProcessor = new SimpleSpanProcessor($exporter);
+// Resource information
+$resource = ResourceInfo::create(
+    new Attributes([
+        ResourceAttributes::SERVICE_NAME => 'php-otel-test'
+    ])
+);
 
-// Tracer provider
+// TracerProvider setup
 $tracerProvider = new TracerProvider(
-    $spanProcessor,
+    new SimpleSpanProcessor($exporter),
+    new AlwaysOnSampler(),
     $resource
 );
 
-// Get tracer
-$tracer = $tracerProvider->getTracer('php-tracer');
+// Create a test span
+$tracer = $tracerProvider->getTracer('test-tracer');
+$span = $tracer->spanBuilder('test-span')->startSpan();
+$span->end();

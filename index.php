@@ -3,12 +3,14 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Test PHP execution
+// Confirm PHP execution
 echo "PHP reached index.php<br>";
 
-// Test OTEL inclusion (optional)
+// Load Composer autoloader
 require __DIR__ . '/vendor/autoload.php';
+
+// Load OTEL setup
 require __DIR__ . '/otel.php';
 
-// Print your name as test
+// Print test message
 echo "Hello, Tahira! This is a test<br>";
