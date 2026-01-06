@@ -11,8 +11,6 @@ env:
   LOCATION: westus2
   PLAN_NAME: webapp-b1-plan
   PHP_VERSION: 8.2
-  LAW_NAME: law-php
-  APPINSIGHTS_NAME: appinsights-php
 
 jobs:
   build:
@@ -45,8 +43,8 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: |
           composer validate --no-check-publish
-          composer install --prefer-dist --no-dev --no-progress --optimize-autoloader
-          ls -la vendor
+          composer install --prefer-dist --no-dev --no-progress --no-scripts --optimize-autoloader
+          ls -la vendor   # confirm vendor exists
 
       - name: Prepare deployment artifact
         run: |
@@ -85,38 +83,6 @@ jobs:
           az group show --name ${{ env.RESOURCE_GROUP }} || \
           az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
-      - name: Ensure Log Analytics Workspace exists
-        run: |
-          az monitor log-analytics workspace show \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --workspace-name ${{ env.LAW_NAME }} || \
-          az monitor log-analytics workspace create \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --workspace-name ${{ env.LAW_NAME }} \
-            --location ${{ env.LOCATION }}
-
-      - name: Ensure Application Insights exists
-        run: |
-          az monitor app-insights component show \
-            --app ${{ env.APPINSIGHTS_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} || \
-          az monitor app-insights component create \
-            --app ${{ env.APPINSIGHTS_NAME }} \
-            --location ${{ env.LOCATION }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --workspace $(az monitor log-analytics workspace show \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --workspace-name ${{ env.LAW_NAME }} \
-              --query id -o tsv)
-
-      - name: Get Application Insights connection string
-        id: appinsights
-        run: |
-          echo "CONNECTION_STRING=$(az monitor app-insights component show \
-            --app ${{ env.APPINSIGHTS_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --query connectionString -o tsv)" >> $GITHUB_OUTPUT
-
       - name: Ensure App Service Plan exists
         run: |
           az appservice plan show --name ${{ env.PLAN_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} || \
@@ -135,22 +101,6 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --plan ${{ env.PLAN_NAME }} \
             --runtime "PHP|${{ env.PHP_VERSION }}"
-
-      - name: Enable Azure Monitor OpenTelemetry
-        run: |
-          az webapp extension add \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_NAME }} \
-            --extension-name ApplicationInsightsLinux
-
-      - name: Configure App Settings
-        run: |
-          az webapp config appsettings set \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_NAME }} \
-            --settings \
-              APPLICATIONINSIGHTS_CONNECTION_STRING=${{ steps.appinsights.outputs.CONNECTION_STRING }} \
-              OTEL_SERVICE_NAME=php-demo-app
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

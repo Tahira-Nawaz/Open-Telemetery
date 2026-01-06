@@ -1,17 +1,18 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/otel.php';
+// index.php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-echo "<h2>PHP OpenTelemetry Demo</h2>";
+echo "PHP reached index.php<br>";
 
-$span = $tracer->spanBuilder('dummy-processing')->startSpan();
-
-try {
-    echo "<p>Processing started</p>";
-    sleep(1);
-    echo "<p>Processing completed</p>";
-} finally {
-    $span->end();
+// 1. Load Autoloader
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+} else {
+    die("Autoloader not found. Run 'composer install' in the project root.");
 }
 
-echo "<p>Request completed successfully</p>";
+// 2. Load OTEL setup
+require __DIR__ . '/otel.php';
+
+echo "Hello, Tahira! This is a test..<br>";
