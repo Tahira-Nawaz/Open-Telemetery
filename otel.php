@@ -5,13 +5,13 @@ use OpenTelemetry\Exporter\OTLP\SpanExporter;
 
 // Initialize OTLP exporter
 $exporter = new SpanExporter([
-    'endpoint' => 'http://localhost:4317' // Replace with your collector endpoint if needed
+    'endpoint' => 'http://localhost:4317' // change if using real OTLP collector
 ]);
 
-// Create TracerProvider with a simple span processor
+// Create TracerProvider
 $tracerProvider = new TracerProvider(
     new SimpleSpanProcessor($exporter)
 );
 
-// Get a tracer instance
+// Get tracer
 $tracer = $tracerProvider->getTracer('slim-dice-tracer');
