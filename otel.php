@@ -8,10 +8,10 @@ use OpenTelemetry\SDK\Trace\Exporter\OtlpHttpExporter;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
-// // Create an OTLP exporter
-// $exporter = new OtlpHttpExporter(
-//     endpoint: 'http://127.0.0.1:4318/v1/traces'
-// );
+// Create an OTLP exporter
+$exporter = new OtlpHttpExporter(
+    endpoint: 'http://127.0.0.1:4318/v1/traces'
+);
 
 // Create a tracer provider with a simple span processor
 $tracerProvider = new TracerProvider(
