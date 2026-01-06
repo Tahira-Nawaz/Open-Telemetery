@@ -1,41 +1,65 @@
 <?php
-// index.php
-require_once __DIR__ . '/otel.php';
 
-// Get the global tracer initialized in otel.php
-// Alternatively, use the global TracerProvider if configured as global
-use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
+require __DIR__ . '/vendor/autoload.php';
 
-$instrumentation = new CachedInstrumentation('my-app-instrumentation');
-$tracer = $instrumentation->getTracer();
+use OpenTelemetry\API\Globals;
+use OpenTelemetry\API\Trace\SpanKind;
+use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\Contrib\Otlp\Exporter;
+use OpenTelemetry\SDK\Resource\ResourceInfo;
+use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
+use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
+use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SemConv\ResourceAttributes;
 
-// Start a new trace span for the request
-$span = $tracer->spanBuilder('http.server.request')
-    ->setAttribute('http.method', $_SERVER['REQUEST_METHOD'])
-    ->setAttribute('http.url', (isset($_SERVER['HTTPS']) ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]")
+// 1. Configure and initialize the OpenTelemetry SDK
+$resource = ResourceInfo::create([
+    ResourceAttributes::SERVICE_NAME => 'my-php-service',
+    ResourceAttributes::SERVICE_VERSION => '1.0.0',
+]);
+$exporter = new Exporter();
+$spanProcessor = new SimpleSpanProcessor($exporter);
+$tracerProvider = new TracerProvider(
+    $spanProcessor,
+    new AlwaysOnSampler(),
+    $resource
+);
+
+Globals::setTracerProvider($tracerProvider);
+
+// 2. Get the tracer instance
+$tracer = $tracerProvider->getTracer('my-app/index.php', '1.0.0');
+
+// 3. Create a new span (trace the main operation)
+$span = $tracer->spanBuilder('main-operation')
+    ->setSpanKind(SpanKind::KIND_SERVER)
     ->startSpan();
 
-// Set the span as the active span
+// 4. Set the current span as active in the context
 $scope = $span->activate();
 
 try {
-    // Your application logic goes here
-    echo "Hello from Azure Web App with OpenTelemetry!";
+    echo "Hello, OpenTelemetry!\n";
+    
+    // Simulate some work with a nested span
+    $nestedSpan = $tracer->spanBuilder('nested-work')
+        ->startSpan();
+    try {
+        usleep(10000); // Simulate some work
+        $nestedSpan->setAttribute('work.status', 'successful');
+    } finally {
+        $nestedSpan->end();
+    }
 
-    // Add an event or log something
-    $span->addEvent('Application logic executed');
+    $span->setStatus(StatusCode::STATUS_OK, 'Operation successful');
 
-    // Simulate some work
-    usleep(50000);
-
+} catch (\Exception $e) {
+    $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
 } finally {
-    // End the span and the scope
+    // 5. End the span and close the scope
     $scope->detach();
     $span->end();
 
-    // Ensure all telemetry is exported (important for short-lived scripts)
-    // This can be handled by a shutdown function as well.
-    // The SDK typically handles this if run() is called, but manual flushing is safe.
-    // $sdk->forceFlush(); 
+    // 6. Ensure all telemetry data is sent before the script ends
+    $tracerProvider->shutdown();
 }
-?>
