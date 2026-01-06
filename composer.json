@@ -1,19 +1,22 @@
 {
-    "name": "tahira/slim-dice-otel",
-    "description": "Slim 4 PHP app with OpenTelemetry demo",
+    "name": "my-app/opentelemetry-example",
+    "description": "An OpenTelemetry PHP example application",
     "type": "project",
     "require": {
-        "slim/slim": "^4",
-        "slim/psr7": "^1",
-        "open-telemetry/sdk": "^1.0"
+        "php": "^8.1",
+        "open-telemetry/sdk": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.0",
+        "psr/http-client": "^1.0",
+        "nyholm/psr7": "^1.4",
+        "guzzlehttp/guzzle": "^7.4",
+        "psr/http-factory-implementation": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "MyApp\\": "src/"
         }
-    },
-    "minimum-stability": "stable",
-    "scripts": {
-        "start": "php -S localhost:8080"
     }
 }
