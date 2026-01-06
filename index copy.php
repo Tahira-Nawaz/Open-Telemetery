@@ -1,21 +1,3 @@
-<?php
-// index.php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-echo "PHP reached index.php<br>";
-
-// 1. Load Autoloader
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require __DIR__ . '/vendor/autoload.php';
-} else {
-    die("Autoloader not found. Run 'composer install' in the project root.");
-}
-
-// 2. Load OTEL setup
-require __DIR__ . '/otel.php';
-
-echo "Hello, Tahira! This is a test..<br>";
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -229,7 +211,7 @@ Offering you additional revision if any chnage is require..!
                         <!-- To make this form functional, sign up at-->
                         <!-- https://startbootstrap.com/solution/contact-forms-->
                         <!-- to get an API token!-->
-                        <form id="contactForm"  method="POST" action="formconnection.php" enctype="multipart/form-data">
+                        <form id="contactForm"  method="POST" action="formconnectionssl.php" enctype="multipart/form-data">
                             <!-- Name input-->
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="name" type="text" name="First_name" placeholder="Enter your name..." data-sb-validations="required" />
