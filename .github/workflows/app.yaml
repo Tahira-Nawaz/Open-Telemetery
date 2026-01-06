@@ -44,11 +44,11 @@ jobs:
         run: |
           composer validate --no-check-publish
           composer install --prefer-dist --no-dev --no-progress --no-scripts --optimize-autoloader
-          ls -la vendor   # confirm vendor exists
+          ls -la vendor
 
       - name: Prepare deployment artifact
         run: |
-          zip -r release.zip index.php otel.php vendor composer.json composer.lock
+          zip -r release.zip index.php otel.php vendor composer.json composer.lock assets css js
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
