@@ -4,7 +4,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
-use OpenTelemetry\SDK\Trace\Exporter\OtlpHttpExporter;
+use OpenTelemetry\Exporter\OtlpHttp\Exporter; 
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
