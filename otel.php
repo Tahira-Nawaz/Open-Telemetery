@@ -4,14 +4,16 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
-use OpenTelemetry\Exporter\Otlp\SpanExporter;
+use OpenTelemetry\Exporter\Otlp\SpanExporterFactory;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
+
 // Create an OTLP exporter
-$exporter = new SpanExporter(
-    endpoint: 'http://127.0.0.1:4318/v1/traces'
-);
+$exporter = (new SpanExporterFactory())->create([
+    'endpoint' => 'http://127.0.0.1:4318/v1/traces',
+]);
+
 
 // Create a tracer provider with a simple span processor
 $tracerProvider = new TracerProvider(
