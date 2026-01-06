@@ -156,5 +156,5 @@ jobs:
           slot-name: 'Production'
           package: release.zip
 
-      # - name: Tail Web App Logs (optional)
-      #   run: az webapp log tail --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+      - name: Tail Web App Logs (optional)
+        run: az webapp log tail --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
