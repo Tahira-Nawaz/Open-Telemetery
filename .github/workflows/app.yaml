@@ -135,6 +135,9 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --plan ${{ env.PLAN_NAME }} \
             --runtime "PHP|${{ env.PHP_VERSION }}"
+      
+      - name: Enable Azure Monitor OpenTelemetry
+        run: az webapp extension add --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.APP_NAME }} --extension-name ApplicationInsightsLinux
 
       - name: Configure App Settings
         run: |
