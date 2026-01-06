@@ -9,7 +9,7 @@ use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SemConv\ResourceAttributes;
 
 // Create an OTLP exporter
-$exporter = new OtlpHttpExporter(
+$exporter = new SpanExporter(
     endpoint: 'http://127.0.0.1:4318/v1/traces'
 );
 
