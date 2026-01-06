@@ -1,4 +1,4 @@
-<?php
+
 // // index.php
 // ini_set('display_errors', 1);
 // error_reporting(E_ALL);
@@ -15,7 +15,7 @@
 // require __DIR__ . '/otel.php';
 
 // echo "Hello, Tahira! This is a test..<br>";
-// ?>
+// 
 
 <!DOCTYPE html>
 <html lang="en">
