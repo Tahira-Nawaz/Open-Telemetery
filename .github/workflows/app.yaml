@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  APP_NAME: tahira-test-app
+  APP_NAME: tahira-app
   RESOURCE_GROUP: webapp-rg
   LOCATION: westus2
   PLAN_NAME: webapp-b1-plan
