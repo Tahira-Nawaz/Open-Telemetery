@@ -1,8 +1,15 @@
 <?php
+// index.php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-require 'otel.php';
 
-echo "Hello Observability!";
+// 1. Load Composer Autoloader
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+} else {
+    die("Autoloader not found. Run 'composer install' in the project root.");
+}
 
 echo "Hello, Tahira! This is a test..<br>";
 ?>
