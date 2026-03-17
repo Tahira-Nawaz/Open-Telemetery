@@ -1,24 +1,25 @@
 <?php
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-use ApplicationInsights\Telemetry_Client;
+use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
+use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
 
-// Replace with your Instrumentation Key from Azure
-$ikey = '6129d3c2-30b9-47eb-97ca-59a04b4c9b46';
+$exporter = new OtlpHttpExporter(
+    endpoint: 'https://westus2-2.in.applicationinsights.azure.com/v1/traces',
+    headers: [
+        'InstrumentationKey' => '6129d3c2-30b9-47eb-97ca-59a04b4c9b46'
+    ]
+);
 
-$telemetry = new Telemetry_Client();
-$telemetry->getContext()->setInstrumentationKey($ikey);
+$tracerProvider = new TracerProvider(
+    spanProcessor: new SimpleSpanProcessor($exporter)
+);
 
-// Track the current page request
-$telemetry->trackRequest("HomepageRequest", "http://tahira-app-1.azurewebsites.net/", time(), 100, "200");
+$tracer = $tracerProvider->getTracer('tahira-app-tracer');
 
-// Optional: track a custom event
-$telemetry->trackEvent("TestEvent", ["User" => "Tahira"]);
-
-// Optional: track exception (if any)
-// try { ... } catch (\Exception $e) { $telemetry->trackException($e); }
-
-// Flush all telemetry to Application Insights
-$telemetry->flush();
+$span = $tracer->startAndActivateSpan('HomepageRequest');
+usleep(100000);
+$span->end();
 
 echo "Telemetry sent to Azure Application Insights!";
