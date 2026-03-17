@@ -1,9 +1,22 @@
 <?php
 // index.php
-require __DIR__ . '/vendor/autoload.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-// Run OpenTelemetry
-require '/otel.php';
+
+// 1. Load Composer Autoloader
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+} else {
+    die("Autoloader not found. Run 'composer install' in the project root.");
+}
+
+// 1. Load Composer Autoloader
+if (file_exists(__DIR__ . '/otel.php')) {
+    require __DIR__ . '/otel.php';
+} else {
+    die("otel.php not found. Run 'composer install' in the project root.");
+}
 
 echo "Hello, Tahira! This is a test..<br>";
 ?>
