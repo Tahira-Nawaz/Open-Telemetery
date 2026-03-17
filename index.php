@@ -3,7 +3,7 @@
 require __DIR__ . '/vendor/autoload.php';
 
 // Run OpenTelemetry
-require __DIR__ . '/otel.php';
+require otel.php';
 
 echo "Hello, Tahira! This is a test..<br>";
 ?>
