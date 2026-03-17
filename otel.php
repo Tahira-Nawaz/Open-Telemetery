@@ -25,4 +25,4 @@ $span = $tracer->startAndActivateSpan('HomepageRequest');
 usleep(100000); // 0.1 seconds
 $span->end();
 
-echo "Telemetry sent to Azure Application Insights!";
+echo "Telemetry sent to Azure Application Insights! app-test";
