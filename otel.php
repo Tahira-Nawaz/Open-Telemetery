@@ -5,10 +5,11 @@ use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
 
+// OTLP Exporter for Application Insights
 $exporter = new OtlpHttpExporter(
-    endpoint: 'https://westus2-2.in.applicationinsights.azure.com/v1/traces',
+    endpoint: 'https://westus2-2.otlp.applicationinsights.azure.com/v1/traces',
     headers: [
-        'InstrumentationKey' => '6129d3c2-30b9-47eb-97ca-59a04b4c9b46'
+        'Authorization' => 'InstrumentationKey 6129d3c2-30b9-47eb-97ca-59a04b4c9b46'
     ]
 );
 
@@ -18,8 +19,9 @@ $tracerProvider = new TracerProvider(
 
 $tracer = $tracerProvider->getTracer('tahira-app-tracer');
 
+// Example trace
 $span = $tracer->startAndActivateSpan('HomepageRequest');
-usleep(100000);
+usleep(100000); // simulate work
 $span->end();
 
 echo "Telemetry sent to Azure Application Insights!";
