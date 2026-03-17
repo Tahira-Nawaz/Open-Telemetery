@@ -1,15 +1,3 @@
 # Composer dependencies
 /vendor/
 
-# Composer lock file (optional, usually you keep it)
-/composer.lock
-
-# Environment files
-.env
-.env.local
-
-# OS or editor files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
