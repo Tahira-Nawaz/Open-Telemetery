@@ -5,12 +5,14 @@ use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
 
-// Replace with your Azure Connection String
-$connectionString = 'InstrumentationKey=6129d3c2-30b9-47eb-97ca-59a04b4c9b46;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=ea4df62a-5d2d-498d-a5c4-687a0ec9dd44';
+
 
 // Create exporter to send telemetry to Application Insights
 $exporter = new OtlpHttpExporter(
-    endpoint: $connectionString
+    endpoint: 'https://westus2-2.in.applicationinsights.azure.com/v1/traces',
+    headers: [
+        'InstrumentationKey' => '6129d3c2-30b9-47eb-97ca-59a04b4c9b46'
+    ]
 );
 
 $tracerProvider = new TracerProvider(
