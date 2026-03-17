@@ -3,7 +3,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
-use OpenTelemetry\Exporter\Otlp\OtlpHttpExporter;
+
 
 // OTLP Exporter for Application Insights
 $exporter = new OtlpHttpExporter(
