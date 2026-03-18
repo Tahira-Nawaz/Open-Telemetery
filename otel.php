@@ -28,7 +28,7 @@ $exporter = new SpanExporter(
 
 // ✅ Add service name (VERY IMPORTANT for visibility)
 $resource = ResourceInfo::create(Attributes::create([
-    "service.name" => "tahira-php-app"
+    "service.name" => "tahira-app-1"
 ]));
 
 // ✅ Tracer provider
