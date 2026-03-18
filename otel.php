@@ -12,23 +12,25 @@ use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 $connectionString = "InstrumentationKey=688d2b7d-daea-49b0-9d30-b7d7ba5b02e1;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=705a3523-c215-4677-95cc-f86d159e2140";
 $endpoint = "https://westus2-2.otlp.applicationinsights.azure.com/v1/traces";
 
-// Create transport (positional args)
+// 1️⃣ Create transport via factory
 $transportFactory = new OtlpHttpTransportFactory(
-    $endpoint, // endpoint
+    $endpoint,
     [
         "Authorization" => "Bearer $connectionString"
     ]
 );
 
-// Create SpanExporter
-$exporter = new SpanExporter($transportFactory);
+$transport = $transportFactory->create(); // ✅ must call create()
 
-// Add resource info (your app name)
+// 2️⃣ Create SpanExporter with transport
+$exporter = new SpanExporter($transport);
+
+// 3️⃣ Resource info (your Azure Web App name)
 $resource = ResourceInfo::create(Attributes::create([
     "service.name" => "tahira-app-1"
 ]));
 
-// Tracer provider
+// 4️⃣ Tracer provider
 $tracerProvider = new TracerProvider(
     new SimpleSpanProcessor($exporter),
     $resource
@@ -36,12 +38,12 @@ $tracerProvider = new TracerProvider(
 
 $tracer = $tracerProvider->getTracer("tahira-tracer");
 
-// Create span
+// 5️⃣ Example span
 $span = $tracer->spanBuilder("HomepageRequest")->startSpan();
 usleep(100000); // simulate work
 $span->end();
 
-// Flush telemetry
+// 6️⃣ Flush telemetry
 $tracerProvider->shutdown();
 
 echo "Telemetry sent to Azure Application Insights!";
