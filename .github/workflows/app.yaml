@@ -42,6 +42,8 @@ jobs:
       - name: Install PHP dependencies
         if: steps.check_files.outputs.files_exists == 'true'
         run: |
+          composer require open-telemetry/sdk
+          composer require open-telemetry/exporter-otlp
           composer validate --no-check-publish
           composer install --prefer-dist --no-dev --no-progress --no-scripts --optimize-autoloader
           ls -la vendor
