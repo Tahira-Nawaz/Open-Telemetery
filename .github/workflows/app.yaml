@@ -43,6 +43,7 @@ jobs:
         run: |
           composer require open-telemetry/sdk
           composer require open-telemetry/exporter-otlp
+          composer require guzzlehttp/guzzle:^7.0 php-http/guzzle7-adapter
           ls -la vendor
 
       - name: Prepare deployment artifact
