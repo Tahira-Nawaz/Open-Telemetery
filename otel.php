@@ -75,7 +75,7 @@ $span->end();
 // 5️⃣ Send span to Azure
 // ----------------------------
 sendTelemetry([
-    'name' => 'HomepageRequest',
+    'name' => 'PHP:HomepageRequest',
     'serviceName' => 'tahira-app-1',
     'duration' => '00:00:00.100',
     'responseCode' => '200',

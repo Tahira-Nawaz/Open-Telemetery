@@ -1,0 +1,52 @@
+from flask import Flask, request
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind
+import logging
+import os
+
+# -------------------------------
+# Step 1: Set service name via environment variable (no manual TracerProvider)
+# -------------------------------
+os.environ["OTEL_SERVICE_NAME"] = "my-flask-app"
+
+# -------------------------------
+# Step 2: Configure Azure Monitor
+# -------------------------------
+configure_azure_monitor(
+    connection_string="InstrumentationKey=fad75225-e11f-49da-b5ef-66482eec4123;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/"
+)
+
+# -------------------------------
+# Step 3: Create Flask app
+# -------------------------------
+app = Flask(__name__)
+FlaskInstrumentor().instrument_app(app)  # Automatic request telemetry
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# -------------------------------
+# Step 4: Route with custom span
+# -------------------------------
+@app.route("/")
+def home():
+    tracer = trace.get_tracer(__name__)
+    with tracer.start_as_current_span("python:homepage", kind=SpanKind.SERVER) as span:
+        # Custom attributes
+        span.set_attribute("log.message", "Home page accessed!")
+        span.set_attribute("request.url", request.url)
+        span.set_attribute("request.method", request.method)
+
+        # Log to console
+        logger.info(f"{request.method} request to {request.url} - Home page accessed!")
+
+        return "Hello OpenTelemetry with Flask!"
+
+# -------------------------------
+# Step 5: Run the app
+# -------------------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

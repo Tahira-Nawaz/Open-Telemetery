@@ -93,6 +93,7 @@ if __name__ == "__main__":
 # ============================================
 # STEP 8: Run Flask app
 # ============================================
+   source otel-env/bin/activate
    python app.py
 
 # ============================================
@@ -129,5 +130,30 @@ if __name__ == "__main__":
 
 
 
+# Step 1: Create project folder
+mkdir Open-Telemetery1
+cd Open-Telemetery1
 
-composer init --name="tahira/otel-test" --require="php:>=8.0"
+# Step 2: Clone your repository
+git clone https://github.com/Tahira-Nawaz/Open-Telemetery.git
+ls
+
+# Step 3: Remove temporary folder if needed
+cd ..
+rm -r Open-Telemetery1
+
+# Step 4: Enter cloned repo
+cd Open-Telemetery
+ls
+composer init --name="tahira/otel-test" --require="php:>=8.0" --no-interaction
+
+# Step 5: Install required OpenTelemetry packages
+composer require open-telemetry/sdk
+composer require open-telemetry/exporter-otlp
+composer require php-http/guzzle7-adapter
+
+# Step 6: Verify installed packages
+composer show | grep open-telemetry
+
+# Step 7: Run PHP built-in server
+php -S 0.0.0.0:8000
