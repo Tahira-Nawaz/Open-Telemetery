@@ -5,44 +5,86 @@ use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
-use OpenTelemetry\Contrib\Otlp\SpanExporter;
-use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 
-// 1️⃣ Azure OTLP connection
-$connectionString = "InstrumentationKey=688d2b7d-daea-49b0-9d30-b7d7ba5b02e1;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=705a3523-c215-4677-95cc-f86d159e2140";
-$endpoint = "https://westus2-2.otlp.applicationinsights.azure.com/v1/traces";
+// ----------------------------
+// 1️⃣ Azure connection
+// ----------------------------
+$connectionString = "InstrumentationKey=fad75225-e11f-49da-b5ef-66482eec4123;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=bde46449-9ee8-4937-bcd1-098689586da8";
+$instrumentationKey = "fad75225-e11f-49da-b5ef-66482eec4123";
 
-// 2️⃣ Create transport
-$transportFactory = new OtlpHttpTransportFactory();
-$transport = $transportFactory->create(
-    $endpoint,
-    'application/x-protobuf'
+// Use classic ingestion endpoint (works from PHP)
+$endpoint = "https://westus2-2.in.applicationinsights.azure.com/v2/track";
+
+// ----------------------------
+// 2️⃣ Helper to send span to Azure
+// ----------------------------
+function sendTelemetry(array $spanData, string $endpoint, string $ikey): void {
+    $payload = [
+        "name" => $spanData['name'],
+        "time" => gmdate("c"),
+        "iKey" => $ikey,
+        "tags" => [
+            "ai.cloud.role" => $spanData['serviceName'] ?? 'unknown-service',
+        ],
+        "data" => [
+            "baseType" => "RequestData",
+            "baseData" => [
+                "id" => uniqid(),
+                "name" => $spanData['name'],
+                "duration" => $spanData['duration'] ?? "00:00:00.100",
+                "responseCode" => $spanData['responseCode'] ?? "200",
+                "success" => $spanData['success'] ?? true,
+            ],
+        ],
+    ];
+
+    $ch = curl_init($endpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        echo "Telemetry error: $err\n";
+    } else {
+        echo "Telemetry sent successfully! Response: $response\n";
+    }
+}
+
+// ----------------------------
+// 3️⃣ Tracer setup (simulated)
+// ----------------------------
+$resource = ResourceInfo::create(
+    Attributes::create(['service.name' => 'tahira-app-1'])
 );
 
-// 3️⃣ Create SpanExporter with headers
-$exporter = new SpanExporter($transport, [
-    'Authorization' => "Bearer $connectionString"
-]);
+$tracerProvider = new TracerProvider();
+$tracer = $tracerProvider->getTracer('tahira-tracer', '1.0.0');
 
-// 4️⃣ Create TracerProvider (span processor only)
-$tracerProvider = new TracerProvider(
-    new SimpleSpanProcessor($exporter)
-);
-
-// 5️⃣ Create ResourceInfo
-$resource = ResourceInfo::create(Attributes::create([
-    'service.name' => 'tahira-app-1'
-]));
-
-// 6️⃣ Get tracer with resource
-$tracer = $tracerProvider->getTracer('tahira-tracer', null, $resource);
-
-// 7️⃣ Example span
-$span = $tracer->spanBuilder("HomepageRequest")->startSpan();
+// ----------------------------
+// 4️⃣ Example span
+// ----------------------------
+$span = $tracer->spanBuilder('HomepageRequest')->startSpan();
 usleep(100000); // simulate work
 $span->end();
 
-// 8️⃣ Flush telemetry
+// ----------------------------
+// 5️⃣ Send span to Azure
+// ----------------------------
+sendTelemetry([
+    'name' => 'HomepageRequest',
+    'serviceName' => 'tahira-app-1',
+    'duration' => '00:00:00.100',
+    'responseCode' => '200',
+    'success' => true,
+], $endpoint, $instrumentationKey);
+
+// ----------------------------
+// 6️⃣ Shutdown tracer
+// ----------------------------
 $tracerProvider->shutdown();
 
-echo "Telemetry sent to Azure Application Insights!";
+echo "Done!";

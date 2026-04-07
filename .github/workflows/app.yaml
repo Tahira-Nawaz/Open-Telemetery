@@ -3,7 +3,7 @@ name: Build and deploy PHP app to Azure Web App
 on:
   push:
     branches:
-      - main
+      # - main
 
 env:
   APP_NAME: tahira-app-1
@@ -41,8 +41,11 @@ jobs:
 
       - name: Install PHP dependencies
         run: |
+          composer config allow-plugins.tbachert/spi false
+          composer config allow-plugins.php-http/discovery false
           composer require open-telemetry/sdk
           composer require open-telemetry/exporter-otlp
+          composer require open-telemetry/sdk open-telemetry/exporter-otlp
           composer require guzzlehttp/guzzle:^7.0 php-http/guzzle7-adapter
           ls -la vendor
 
